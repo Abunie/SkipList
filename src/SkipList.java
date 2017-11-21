@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 
@@ -57,18 +58,19 @@ public class SkipList<K extends Comparable<K>, V> {
      * @param args {@code String[]} Command line arguments
      */
     public static void main(String[] args) {
-        int MAXNUM = 200;
+        int MAXIMUM = 200;
+        int TEST_SIZE = 100;
         SkipList<Integer, String> list = new SkipList<Integer, String>();
-        int[] keys = new int[10];
-        for (int i = 0; i < 10; i++) {                          // Insert elements
-            keys[i] = (int) (Math.random() * MAXNUM);
+        int[] keys = new int[TEST_SIZE];
+        for (int i = 0; i < TEST_SIZE; i++) {                          // Insert elements
+            keys[i] = (int) (Math.random() * MAXIMUM);
             list.insert(keys[i], "\"" + keys[i] + "\"");
             System.out.println(list);
         }
 
         System.out.println(list);
 
-        for (int i = 0; i < 10; i += 3) {
+        for (int i = 0; i < TEST_SIZE; i += 3) {
             int key = keys[i];
             // Search elements
             System.out.println(String.format("Find element             %3d: value=%s", key, list.search(key)));
@@ -77,7 +79,6 @@ public class SkipList<K extends Comparable<K>, V> {
             // Search the removed elements
             System.out.println(String.format("Find the removed element %3d: value=%s", key, list.search(key)));
         }
-
         System.out.println(list);
     }
 
@@ -88,19 +89,46 @@ public class SkipList<K extends Comparable<K>, V> {
      * @return {@code V} value of the removed element
      */
     public V remove(K key) {
-//        // TODO: Lab 5 Part 1-2 -- skip list deletion
-//        if(!contains(key))
-//            return null;
-//        Node removeNode = find(key);
-//        Node current = head;
-//        int level = maxLevel;
-//        do {
-//            current = findNext(key, current, level);
-//            if (current.forwards.get(level)!=null)
-//                current.forwards.set(level, current.forwards.get(level).forwards.get(level));
-//        } while (level-- > 0);
-//        return removeNode.value;
-        return null;
+        // TODO: Lab 5 Part 1-2 -- skip list deletion
+        ArrayList<Node> update = new ArrayList<>(maxLevel+1);
+        Node current = head;
+        for (int i =level+1; i>=0; i--){
+            while(current.forwards.get(i)!= null && lessThan(current.forwards.get(i).key, key))
+                current = current.forwards.get(i);
+            update.add(current);
+        }
+        // update reverse order
+        Collections.reverse(update);
+        System.out.println(update);
+
+//
+//        * reached level 0 and forward pointer to
+//        right, which is possibly our desired node.*/
+        current = current.forwards.get(0);
+
+        // If current node is target node
+        if(current != null && current.key.equals(key))
+        {
+        /* start from lowest level and rearrange
+           pointers just like we do in singly linked list
+           to remove target node */
+            for(int i=0; i<=level+1;i++)
+            {
+            /* If at level i, next node is not target
+               node, break the loop, no need to move
+              further level */
+                if(update.get(i).forwards.get(i) != current)
+                    break;
+
+                update.get(i).forwards.set(i, current.forwards.get(i));
+            }
+         // Remove levels having no elements
+            while(level>0 && head.forwards.get(level) == null) {
+                level--;
+
+            }
+        }
+        return current.value;
     }
 
     public String toStringR(Node node, int level) {
@@ -109,7 +137,7 @@ public class SkipList<K extends Comparable<K>, V> {
         if (node == null || node.value == null) {
             return null;
         }
-        outString.append(node.key);
+        outString.append(node);
         outString.append("->");
         outString.append(toStringR(node.forwards.get(level), level));
         return outString.toString();
@@ -123,6 +151,9 @@ public class SkipList<K extends Comparable<K>, V> {
     public String toString() {
         // TODO: Lab 5 Part 1-4 -- skip list printing
         StringBuilder outString = new StringBuilder();
+
+        ArrayList<K> baseK = new ArrayList<>();
+
         for (int l = 0; l < maxLevel; l++) {
             outString.append(String.format("LEVEL: %d ", l));
             outString.append(toStringR(head.forwards.get(l), l));
@@ -265,7 +296,7 @@ public class SkipList<K extends Comparable<K>, V> {
         }
 
         public String toString() {
-            return String.format("%s(%s,%d)", value, key, forwards.size());
+            return String.format("%s:%s", key, value);
         }
     }
 }

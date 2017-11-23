@@ -3,6 +3,9 @@ import java.util.Random;
 
 
 /**
+ * Name: Nathan Klapstein
+ * ID: 1449872
+ *
  * Lab 6: Java Collection Framework, Skip List and Apache ANT <br />
  * The {@code SkipList} class
  *
@@ -35,12 +38,11 @@ public class SkipList<K extends Comparable<K>, V> {
     public static void main(String[] args) {
         int MAXIMUM = 200;
         int TEST_SIZE = 20;
-        SkipList<Integer, String> list = new SkipList<Integer, String>();
+        SkipList<Integer, String> list = new SkipList<>();
         int[] keys = new int[TEST_SIZE];
         for (int i = 0; i < TEST_SIZE; i++) {                          // Insert elements
             keys[i] = (int) (Math.random() * MAXIMUM);
             list.insert(keys[i], "\"" + keys[i] + "\"");
-            System.out.println(list);
         }
 
         System.out.println(list);
@@ -53,7 +55,6 @@ public class SkipList<K extends Comparable<K>, V> {
             System.out.println(String.format("Remove element           %3d: value=%s", key, list.remove(key)));
             // Search the removed elements
             System.out.println(String.format("Find the removed element %3d: value=%s", key, list.search(key)));
-            System.out.println(list);
         }
         System.out.println(list);
     }
@@ -80,22 +81,22 @@ public class SkipList<K extends Comparable<K>, V> {
      * Remove an element by the key
      *
      * @param key {@code K} key of the element
-     * @return {@code V} value of the removed element
+     * @return {@code Node} Node of the removed element
      */
     public V remove(K key) {
-        // TODO: Lab 5 Part 1-2 -- skip list deletion
         // grab node to remove
-        Node x = search(key);
+        Node x = find(key);
 
         // remove node if it is correct node
-        if (search(key) != null && x.key.equals(key)){
-            for (int i = 0; i <= level; i++){
-                if(update.get(i).forwards.get(i) != x)
+        if (find(key) != null && x.key.equals(key)) {
+            for (int i = 0; i <= level; i++) {
+                if (update.get(i).forwards.get(i) != x)
                     break;
                 update.get(i).forwards.set(i, x.forwards.get(i));
             }
 
-            while( level > 0 && head.forwards.get(level) == null){
+            // remove empty levels
+            while (level > 0 && head.forwards.get(level) == null) {
                 level--;
             }
             size--;
@@ -107,18 +108,18 @@ public class SkipList<K extends Comparable<K>, V> {
     /**
      * Recursive utility for Printing SkipList
      *
-     * @param node {@code Node}
+     * @param node  {@code Node}
      * @param level {@code int}
      * @return {@code String}
      */
     private String toStringR(Node node, int level) {
         if (node == null || node.value == null)
             return null;
-        StringBuilder outString = new StringBuilder();
-        outString.append(node);
-        outString.append("->");
-        outString.append(toStringR(node.forwards.get(level), level));
-        return outString.toString();
+        return String.format(
+                "%s->%s",
+                String.valueOf(node),
+                toStringR(node.forwards.get(level), level)
+        );
     }
 
     /**
@@ -157,11 +158,11 @@ public class SkipList<K extends Comparable<K>, V> {
      * Insert a Key Value pair into the  an element by the key
      *
      * @param key {@code K} key of the element to be added
-     * @return {@code boolean} success of insert
+     * @param value {@code V} value of the element to be added
      */
     public void insert(K key, V value) {
         // if key already exists do nothing
-        if (search(key) != null) {
+        if (find(key) != null) {
             return;
         }
 
@@ -179,7 +180,7 @@ public class SkipList<K extends Comparable<K>, V> {
         }
 
         // clean updates
-        search(key);
+        find(key);
 
         Node newNode = new Node(key, value, newLevel);
         for (int i = 0; i <= newLevel; i++) {
@@ -190,12 +191,12 @@ public class SkipList<K extends Comparable<K>, V> {
     }
 
     /**
-     * Search for an element by the key
+     * find and return an element by the key
      *
      * @param key {@code K} key of the element
-     * @return {@code V} value of the target element
+     * @return {@code Node} Node of the target element
      */
-    public Node search(K key) {
+    private Node find(K key) {
         // refresh update
         update = new ArrayList<>();
         for (int i = 0; i <= level; i++) {
@@ -219,6 +220,18 @@ public class SkipList<K extends Comparable<K>, V> {
         }
     }
 
+    /**
+     * search by the key and return an element's value
+     *
+     * @param key {@code K} key of the element
+     * @return {@code V} value of the target element
+     */
+    public V search(K key){
+        Node x = find(key);
+        if(x != null)
+            return x.value;
+        return null;
+    }
 
     /**
      * The {@code Node} class for {@code SkipList}
@@ -226,7 +239,7 @@ public class SkipList<K extends Comparable<K>, V> {
     private class Node {
         public K key;
         public V value;
-        public ArrayList<Node> forwards = new ArrayList<Node>();
+        public ArrayList<Node> forwards = new ArrayList<>();
 
         public Node(K key, V value, int level) {
             this.key = key;

@@ -58,18 +58,19 @@ public class GenericRedBlackTreeTest {
 
     @Test
     public void test_findFail() {
-        assertEquals(skiplist.search(-3), null);
+        assertEquals(null, skiplist.search(-3));
     }
 
     @Test
     public void test_removeOne() {
         System.out.println(String.format("Removing key %d", keys[0]));
-        System.out.println(String.format("Before:\n%s", skiplist));
 
         assertNotNull(skiplist.remove(keys[0]));
 
         System.out.println(String.format("After:\n%s", skiplist));
         System.out.println();
+
+        assertEquals(null, skiplist.search(keys[0]));
     }
 
     @Test
@@ -80,29 +81,6 @@ public class GenericRedBlackTreeTest {
         for (int i = 0; i < TEST_SIZE; i++) {
             if (!deletedKeys.contains(keys[i])) {
                 System.out.println(String.format("Removing key %d", keys[i]));
-                System.out.println(String.format("Before:\n%s", skiplist));
-
-                // check if proper value has been removed
-                assertNotNull(skiplist.remove(keys[i]));
-
-                System.out.println(String.format("After:\n%s", skiplist));
-                System.out.println();
-
-                deletedKeys.add(keys[i]);
-            }
-        }
-        System.out.println(skiplist);
-    }
-
-    @Test
-    public void test_removeSome() {
-        // ensure that we don't repeat deleting keys would raise an error!
-        List<Integer> deletedKeys = new ArrayList<>();
-
-        for (int i = 0; i < TEST_SIZE; i = +3) {
-            if (!deletedKeys.contains(keys[i])) {
-                System.out.println(String.format("Removing key %d", keys[i]));
-                System.out.println(String.format("Before:\n%s", skiplist));
 
                 // check if proper value has been removed
                 assertEquals(keys[i], convertValue(skiplist.remove(keys[i])));
@@ -110,9 +88,34 @@ public class GenericRedBlackTreeTest {
                 System.out.println(String.format("After:\n%s", skiplist));
                 System.out.println();
 
+                assertEquals(null, skiplist.search(keys[i]));
                 deletedKeys.add(keys[i]);
             }
         }
-        System.out.println(skiplist);
+
+        // check if fully empty
+        assertEquals(0, skiplist.level());
+        assertEquals(0, skiplist.size());
+    }
+
+    @Test
+    public void test_removeSome() {
+        // ensure that we don't repeat deleting keys would raise an error!
+        List<Integer> deletedKeys = new ArrayList<>();
+
+        for (int i = 0; i < TEST_SIZE; i += 3) {
+            if (!deletedKeys.contains(keys[i])) {
+                System.out.println(String.format("Removing key %d", keys[i]));
+
+                // check if proper value has been removed
+                assertEquals(keys[i], convertValue(skiplist.remove(keys[i])));
+
+                System.out.println(String.format("After:\n%s", skiplist));
+                System.out.println();
+
+                assertEquals(null, skiplist.search(keys[i]));
+                deletedKeys.add(keys[i]);
+            }
+        }
     }
 }

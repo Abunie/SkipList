@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="../../eclipse-workspace/SkipList" default="compile" name="lab5">
+<project basedir="C:/Users/nklap/IdeaProjects/SkipList" default="compile" name="SkipList">
+    <target name="-projecthelp" description="Give project help">
+    </target>
     <target name="compile" description="Compile the code into classes">
         <mkdir dir="build/classes"/>
         <javac destdir="build/classes" srcdir="src"/>

@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 
-public class GenericRedBlackTreeTest {
+public class SkipListTest {
     private SkipList<Integer, String> skiplist;
     private int TEST_SIZE = 20;
     private int MAXIMUM = 200;
